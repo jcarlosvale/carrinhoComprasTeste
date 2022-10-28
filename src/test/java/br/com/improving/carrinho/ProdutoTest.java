@@ -45,7 +45,7 @@ class ProdutoTest {
 
 	@Test
 	void equalsAndHashcodeContract() {
-		EqualsVerifier.simple().forClass(Produto.class)
+		EqualsVerifier.simple().forClass(Produto.class).withIgnoredFields("descricao")
 				.verify();
 	}
 }

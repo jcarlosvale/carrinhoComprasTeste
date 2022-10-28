@@ -65,11 +65,11 @@ public class Item {
      * @return BigDecimal
      */
     public BigDecimal getValorTotal() {
-		return setScale(this.valorUnitario.multiply(BigDecimal.valueOf(quantidade)));
+		return this.valorUnitario.multiply(BigDecimal.valueOf(quantidade));
     }
 
 	private BigDecimal setScale(BigDecimal valor) {
-		return valor.setScale(2, RoundingMode.HALF_EVEN);
+		return valor.setScale(2, RoundingMode.DOWN);
 	}
 
 	@Override

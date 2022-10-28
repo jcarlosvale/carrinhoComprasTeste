@@ -2,6 +2,7 @@ package br.com.improving.carrinho;
 
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -116,7 +117,8 @@ public class CarrinhoCompras {
 				.values()
 				.stream()
 				.map(Item::getValorTotal)
-				.reduce(BigDecimal.ZERO, BigDecimal::add);
+				.reduce(BigDecimal.ZERO, BigDecimal::add)
+				.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     /**

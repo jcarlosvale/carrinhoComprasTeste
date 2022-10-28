@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 
 class ItemTest {
 
@@ -87,7 +88,7 @@ class ItemTest {
 
 	@Test
 	void equalsAndHashcodeContract() {
-		EqualsVerifier.simple().forClass(Item.class)
+		EqualsVerifier.simple().forClass(Item.class).suppress(Warning.BIGDECIMAL_EQUALITY)
 				.verify();
 	}
 

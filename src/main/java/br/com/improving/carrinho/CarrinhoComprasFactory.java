@@ -1,13 +1,21 @@
 package br.com.improving.carrinho;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Classe responsável pela criação e recuperação dos carrinhos de compras.
  */
 public class CarrinhoComprasFactory {
 
+	private final Map<String, CarrinhoCompras> carrinhoComprasMap;
 	public CarrinhoComprasFactory() {
+		this.carrinhoComprasMap = new HashMap<>();
 	}
 
     /**
@@ -19,7 +27,8 @@ public class CarrinhoComprasFactory {
      * @return CarrinhoCompras
      */
     public CarrinhoCompras criar(String identificacaoCliente) {
-
+		checkNotNull(identificacaoCliente, "Identificacao cliente nao deve ser null");
+		return carrinhoComprasMap.computeIfAbsent(identificacaoCliente, s -> new CarrinhoCompras());
     }
 
     /**
@@ -32,7 +41,15 @@ public class CarrinhoComprasFactory {
      * @return BigDecimal
      */
     public BigDecimal getValorTicketMedio() {
-
+		if (carrinhoComprasMap.size() == 0) {
+			return new BigDecimal("0.00");
+		}
+		BigDecimal soma = carrinhoComprasMap.values()
+				.stream()
+				.map(CarrinhoCompras::getValorTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		return soma
+				.divide(BigDecimal.valueOf(carrinhoComprasMap.size()), RoundingMode.HALF_EVEN);
     }
 
     /**
@@ -44,6 +61,7 @@ public class CarrinhoComprasFactory {
      * e false caso o cliente não possua um carrinho.
      */
     public boolean invalidar(String identificacaoCliente) {
-
+		checkNotNull(identificacaoCliente, "Identificacao cliente nao deve ser null");
+		return Objects.nonNull(carrinhoComprasMap.remove(identificacaoCliente));
     }
 }
