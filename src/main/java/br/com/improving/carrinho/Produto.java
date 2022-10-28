@@ -1,5 +1,9 @@
 package br.com.improving.carrinho;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Objects;
+
 /**
  * Classe que representa um produto que pode ser adicionado
  * como item ao carrinho de compras.
@@ -9,8 +13,8 @@ package br.com.improving.carrinho;
  */
 public class Produto {
 
-    private Long codigo;
-    private String descricao;
+    private final Long codigo;
+    private final String descricao;
 
     /**
      * Construtor da classe Produto.
@@ -19,6 +23,9 @@ public class Produto {
      * @param descricao
      */
     public Produto(Long codigo, String descricao) {
+
+		this.codigo = checkNotNull(codigo, "Codigo nao deve ser null");
+		this.descricao = checkNotNull(descricao, "Descricao nao deve ser null");
     }
 
     /**
@@ -27,6 +34,7 @@ public class Produto {
      * @return Long
      */
     public Long getCodigo() {
+		return this.codigo;
     }
 
     /**
@@ -35,5 +43,23 @@ public class Produto {
      * @return String
      */
     public String getDescricao() {
+		return this.descricao;
     }
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		final Produto produto = (Produto) o;
+		return Objects.equals(codigo, produto.codigo);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(codigo);
+	}
 }

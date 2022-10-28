@@ -1,15 +1,20 @@
 package br.com.improving.carrinho;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
 
 /**
  * Classe que representa um item no carrinho de compras.
  */
 public class Item {
 
-    private Produto produto;
-    private BigDecimal valorUnitario;
-    private int quantidade;
+	private final Produto produto;
+    private final BigDecimal valorUnitario;
+    private final int quantidade;
 
     /**
      * Construtor da classe Item.
@@ -19,14 +24,21 @@ public class Item {
      * @param quantidade
      */
     public Item(Produto produto, BigDecimal valorUnitario, int quantidade) {
+		checkArgument((valorUnitario != null) && (valorUnitario.compareTo(BigDecimal.ZERO) >= 0),
+				"Valor unitario nao deve ser null ou negativo");
+		checkArgument(quantidade >= 0, "Quantidade deve ser maior ou igual a zero");
+		this.produto = checkNotNull(produto, "Produto nao deve ser null");
+		this.valorUnitario = setScale(valorUnitario);
+		this.quantidade = quantidade;
     }
 
-    /**
+	/**
      * Retorna o produto.
      *
      * @return Produto
      */
     public Produto getProduto() {
+		return this.produto;
     }
 
     /**
@@ -35,6 +47,7 @@ public class Item {
      * @return BigDecimal
      */
     public BigDecimal getValorUnitario() {
+		return this.valorUnitario;
     }
 
     /**
@@ -43,6 +56,7 @@ public class Item {
      * @return int
      */
     public int getQuantidade() {
+		return this.quantidade;
     }
 
     /**
@@ -51,6 +65,27 @@ public class Item {
      * @return BigDecimal
      */
     public BigDecimal getValorTotal() {
-
+		return setScale(this.valorUnitario.multiply(BigDecimal.valueOf(quantidade)));
     }
+
+	private BigDecimal setScale(BigDecimal valor) {
+		return valor.setScale(2, RoundingMode.HALF_EVEN);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		final Item item = (Item) o;
+		return quantidade == item.quantidade && Objects.equals(produto, item.produto) && Objects.equals(valorUnitario, item.valorUnitario);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(produto, valorUnitario, quantidade);
+	}
 }

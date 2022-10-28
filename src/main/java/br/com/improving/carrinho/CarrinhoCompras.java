@@ -3,13 +3,31 @@ package br.com.improving.carrinho;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import br.com.improving.carrinho.exception.NullProdutoException;
+import br.com.improving.carrinho.exception.QuantidadeInvalidaException;
+import br.com.improving.carrinho.exception.ValorUnitarioInvalidoException;
 
 /**
  * Classe que representa o carrinho de compras de um cliente.
  */
 public class CarrinhoCompras {
 
-    /**
+	private final List<Produto> produtos;
+	private final Map<Produto, Item> itemMap;
+
+	public CarrinhoCompras() {
+		this.itemMap = new HashMap<>();
+		this.produtos = new LinkedList<>();
+	}
+
+	/**
      * Permite a adição de um novo item no carrinho de compras.
      *
      * Caso o item já exista no carrinho para este mesmo produto, as seguintes regras deverão ser seguidas:
@@ -25,9 +43,39 @@ public class CarrinhoCompras {
      */
     public void adicionarItem(Produto produto, BigDecimal valorUnitario, int quantidade) {
 
+		validateProduto(produto);
+		validateValorUnitario(valorUnitario);
+		validateQuantidade(quantidade);
+
+		Item newItem = new Item(produto, valorUnitario, quantidade);
+
+		if (!itemMap.containsKey(produto)) {
+			produtos.add(produto);
+		}
+
+		itemMap.merge(produto, newItem,
+				(item, item2) -> new Item(produto, valorUnitario, item.getQuantidade() + item2.getQuantidade()));
     }
 
-    /**
+	private void validateQuantidade(final int quantidade) {
+		if (quantidade < 0) {
+			throw new QuantidadeInvalidaException();
+		}
+	}
+
+	private void validateValorUnitario(final BigDecimal valorUnitario) {
+		if (Objects.isNull(valorUnitario) || (valorUnitario.compareTo(BigDecimal.ZERO) < 0)) {
+			throw new ValorUnitarioInvalidoException();
+		}
+	}
+
+	private void validateProduto(final Produto produto) {
+		if (Objects.isNull(produto)) {
+			throw new NullProdutoException();
+		}
+	}
+
+	/**
      * Permite a remoção do item que representa este produto do carrinho de compras.
      *
      * @param produto
@@ -35,7 +83,10 @@ public class CarrinhoCompras {
      * caso o produto não exista no carrinho.
      */
     public boolean removerItem(Produto produto) {
-
+		if (Objects.nonNull(itemMap.remove(produto))) {
+			return produtos.remove(produto);
+		}
+		return false;
     }
 
     /**
@@ -48,7 +99,10 @@ public class CarrinhoCompras {
      * caso o produto não exista no carrinho.
      */
     public boolean removerItem(int posicaoItem) {
-
+		if (posicaoItem < produtos.size()) {
+			return removerItem(produtos.get(posicaoItem));
+		}
+		return false;
     }
 
     /**
@@ -58,7 +112,11 @@ public class CarrinhoCompras {
      * @return BigDecimal
      */
     public BigDecimal getValorTotal() {
-
+		return itemMap
+				.values()
+				.stream()
+				.map(Item::getValorTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
@@ -67,6 +125,8 @@ public class CarrinhoCompras {
      * @return itens
      */
     public Collection<Item> getItens() {
-
+		return produtos.stream()
+				.map(itemMap::get)
+				.collect(Collectors.toList());
     }
 }
